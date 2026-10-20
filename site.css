@@ -196,8 +196,8 @@ body[data-ground="olive"] .folio__cta::after { background: #cfc0a6; }
   position: relative;
   min-height: 100svh;
   display: grid;
-  align-content: end;
-  padding: clamp(7rem, 16vh, 11rem) var(--fil-gutter) clamp(2.2rem, 6vh, 4rem);
+  align-content: center;
+  padding: clamp(5.5rem, 11vh, 7.5rem) var(--fil-gutter) clamp(2.6rem, 6vh, 4rem);
   overflow: clip;
 }
 .title::before {
@@ -218,16 +218,6 @@ body[data-ground="olive"] .folio__cta::after { background: #cfc0a6; }
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.5rem, 4vh, 3rem);
-}
-
-.title__kicker {
-  font: 600 0.68rem/1 var(--fil-sans);
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--sc-accent);
-  margin: 0 0 clamp(1rem, 3vh, 1.8rem);
-  opacity: 0;
-  animation: rise 900ms var(--sc-ease-out) 120ms forwards;
 }
 
 .title h1 {
@@ -300,19 +290,34 @@ body[data-ground="olive"] .folio__cta::after { background: #cfc0a6; }
 .seal {
   position: absolute;
   z-index: 1;
-  bottom: clamp(8rem, 24vh, 15rem);
-  right: var(--fil-gutter);
-  width: clamp(9rem, 19vw, 17rem);
+  bottom: clamp(6.5rem, 20vh, 12rem);
+  right: clamp(0.5rem, 3vw, 3rem);
+  width: clamp(12rem, 26vw, 23rem);
   aspect-ratio: 1;
   color: var(--fil-gold);
   pointer-events: none;
+  transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+  will-change: transform;
+}
+.seal::after {
+  content: "";
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 48%, rgba(211, 168, 83, 0.16), transparent 62%);
+  z-index: -1;
 }
 .seal img {
   width: 100%; height: 100%; object-fit: contain;
   opacity: 0; transform: scale(0.985);
-  animation: sealIn 1500ms var(--sc-ease-out) 300ms forwards;
+  animation: sealIn 1500ms var(--sc-ease-out) 300ms forwards,
+             sealFloat 11s ease-in-out 1.8s infinite;
 }
-@keyframes sealIn { to { opacity: 1; transform: none; } }
+@keyframes sealIn { to { opacity: 1; } }
+@keyframes sealFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(0, -8px, 0) rotate(-1.1deg); }
+}
 .seal .ring { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 2200ms var(--sc-ease-out) 400ms forwards; }
 .seal .tick { opacity: 0; animation: rise 700ms ease 1400ms forwards; }
 
@@ -538,7 +543,7 @@ figure figcaption b {
   grid-column: 1 / 7;
   grid-row: 1;
   position: relative;
-  width: min(100%, 30rem);
+  width: min(100%, 31rem);
   aspect-ratio: 1;
   margin-inline: auto;
   touch-action: pan-y;
@@ -547,19 +552,49 @@ figure figcaption b {
 .rose::before {
   content: "";
   position: absolute;
-  inset: -6%;
+  inset: -8%;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 42%, rgba(211, 168, 83, calc(0.05 + var(--warm) * 0.16)), transparent 66%);
-  transition: background 700ms ease;
+  background: radial-gradient(circle at 50% 44%, rgba(211, 168, 83, calc(0.06 + var(--warm) * 0.2)), transparent 64%);
+  transition: background 800ms ease;
   pointer-events: none;
 }
-.rose svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rose svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 
-.rose__ring  { fill: none; stroke: var(--sc-hairline-strong); stroke-width: 1; }
-.rose__ring2 { fill: none; stroke: var(--sc-hairline); stroke-width: 1; stroke-dasharray: 1 7; }
-.rose__hand  { stroke: var(--fil-gold); stroke-width: 1.25; transform-box: view-box; transform-origin: 50% 50%; transition: transform 620ms var(--sc-ease-out); }
-.rose__pip   { fill: var(--fil-gold); }
-.rose__mark  { fill: var(--sc-accent); }
+/* engraved rings, ticks and inner rays ---------------------------------- */
+.rose__ring   { fill: none; stroke: var(--sc-hairline-strong); stroke-width: 1; }
+.rose__inner  { fill: none; stroke: var(--sc-hairline-strong); stroke-width: 0.8; }
+.rose__ticks line    { stroke: var(--sc-ink-soft); stroke-width: 0.4; opacity: 0.42; }
+.rose__dayticks line { stroke: var(--fil-gold); stroke-width: 0.9; opacity: 0.55; }
+.rose__spokes line   { stroke: var(--sc-ink-soft); stroke-width: 0.34; opacity: 0.3; }
+.rose__track {
+  fill: none; stroke: var(--sc-hairline); stroke-width: 0.9;
+  stroke-dasharray: 0.8 4.2; stroke-linecap: round;
+}
+
+/* how far into the week you are ----------------------------------------- */
+.rose__arc {
+  fill: none; stroke: var(--fil-gold); stroke-width: 1.5;
+  stroke-linecap: round; opacity: 0.95;
+  transform: rotate(-90deg); transform-box: view-box; transform-origin: 50% 50%;
+  transition: stroke-dasharray 760ms var(--sc-ease-out);
+}
+
+/* the seven nodes, and the one you are on -------------------------------- */
+.rose__node {
+  fill: var(--sc-canvas); stroke: var(--fil-gold); stroke-width: 0.85;
+  transform-box: fill-box; transform-origin: center;
+  transition: transform 420ms var(--sc-ease-out), fill 300ms ease;
+}
+.rose__node.is-on { fill: var(--fil-gold); transform: scale(1.45); }
+
+/* the needle ------------------------------------------------------------- */
+.rose__hand {
+  transform-box: view-box; transform-origin: 50% 50%;
+  transition: transform 700ms var(--sc-ease-out);
+}
+.rose__needle { fill: var(--fil-gold); }
+.rose__hub    { fill: var(--sc-canvas); stroke: var(--fil-gold); stroke-width: 0.9; }
+.rose__hubcross line { stroke: var(--sc-accent); stroke-width: 0.75; stroke-linecap: round; }
 
 .rose__day {
   position: absolute;
@@ -592,24 +627,7 @@ figure figcaption b {
   font-weight: 700;
   letter-spacing: 0.14em;
 }
-.rose__day[aria-pressed="true"]::after { border-color: rgba(138, 100, 32, 0.28); }
-
-.rose__centre {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  gap: 0.5rem;
-  text-align: center;
-  pointer-events: none;
-}
-.rose__centre .cross { font-size: 1.2rem; color: var(--fil-gold); line-height: 1; }
-.rose__centre .word {
-  font: 600 0.58rem/1 var(--fil-sans);
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--sc-ink-soft);
-}
+.rose__day[aria-pressed="true"]::after { border-color: rgba(138, 100, 32, 0.3); }
 
 .rose__note {
   grid-column: 1 / 7;
@@ -839,11 +857,11 @@ figure figcaption b {
   .sources li { grid-template-columns: minmax(0, 1fr); gap: 0.3rem; }
 
   .seal {
-    width: clamp(7.5rem, 26vw, 11rem);
+    width: clamp(9.5rem, 38vw, 15rem);
     top: clamp(4.2rem, 10vh, 6rem);
     bottom: auto;
   }
-  .title { padding-top: clamp(11rem, 30vh, 16rem); }
+  .title { padding-top: clamp(6.5rem, 17vh, 9rem); }
 }
 
 @media (max-width: 480px) {
@@ -866,7 +884,7 @@ figure figcaption b {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .title__kicker, .title__lede, .title__acts, .title__foot,
+  .title__lede, .title__acts, .title__foot,
   .title h1 .ln > span, .seal img {
     animation: none !important;
     opacity: 1 !important;
@@ -875,6 +893,8 @@ figure figcaption b {
   }
   .rose__hand { transition: none; }
   .ch2__loop { display: none; }
+  .seal, .seal img { animation: none !important; }
+  .rose__arc { transition: none; }
   html { scroll-behavior: auto; }
 }
 

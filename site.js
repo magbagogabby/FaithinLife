@@ -29,6 +29,9 @@
   var roseButtons = Array.prototype.slice.call(document.querySelectorAll('.rose__day'));
   var rowButtons  = Array.prototype.slice.call(document.querySelectorAll('.week-row button'));
   var hand        = document.querySelector('[data-hand]');
+  var arc         = document.querySelector('[data-arc]');
+  var nodes       = Array.prototype.slice.call(document.querySelectorAll('[data-node]'));
+  var ARC_C       = 2 * Math.PI * 35.4;
   var nameEl      = document.querySelector('[data-day-name]');
   var tagEl       = document.querySelector('[data-day-tag]');
   var lineEl      = document.querySelector('[data-day-line]');
@@ -48,6 +51,15 @@
     });
 
     if (hand) hand.style.transform = 'rotate(' + (i * STEP) + 'deg)';
+
+    // the gold arc measures how far into the week the chosen day is
+    if (arc) {
+      var len = (i / 7) * ARC_C;
+      arc.style.strokeDasharray = len.toFixed(2) + ' ' + (ARC_C - len).toFixed(2);
+    }
+    nodes.forEach(function (nd, k) {
+      nd.classList.toggle('is-on', k === i);
+    });
     if (nameEl) nameEl.textContent = d.name;
     if (tagEl) tagEl.textContent = d.tag;
     if (lineEl) lineEl.textContent = d.line;
@@ -153,4 +165,26 @@
       });
     }, { threshold: 0.02 }).observe(v);
   }
+})();
+
+/* --- the emblem leans toward the pointer, a few pixels, never more -------- */
+(function () {
+  var seal = document.querySelector('.seal');
+  if (!seal) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var tx = 0, ty = 0, gx = 0, gy = 0, raf = null;
+  function step() {
+    tx += (gx - tx) * 0.11;
+    ty += (gy - ty) * 0.11;
+    seal.style.setProperty('--px', tx.toFixed(2) + 'px');
+    seal.style.setProperty('--py', ty.toFixed(2) + 'px');
+    raf = (Math.abs(gx - tx) > 0.08 || Math.abs(gy - ty) > 0.08)
+      ? window.requestAnimationFrame(step) : null;
+  }
+  window.addEventListener('pointermove', function (e) {
+    gx = (e.clientX / window.innerWidth - 0.5) * 20;
+    gy = (e.clientY / window.innerHeight - 0.5) * 16;
+    if (!raf) raf = window.requestAnimationFrame(step);
+  }, { passive: true });
 })();
