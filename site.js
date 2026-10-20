@@ -137,3 +137,20 @@
     window.ScrollCraft.mount(document.body);
   }
 })();
+
+/* --- chapter II: play the candle loop only while it is on screen ---------- */
+(function () {
+  var v = document.querySelector('.ch2__loop');
+  if (!v) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reduced.matches) { v.removeAttribute('autoplay'); v.pause(); return; }
+  v.addEventListener('playing', function () { v.classList.add('is-playing'); }, { once: true });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { v.play().catch(function () {}); }
+        else { v.pause(); }
+      });
+    }, { threshold: 0.02 }).observe(v);
+  }
+})();
