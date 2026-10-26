@@ -1,0 +1,21 @@
+const { chromium } = require('C:/faithinlife/hermes-agent/node_modules/playwright-core');
+(async () => {
+  const b = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const out = 'C:/faithinlife/pages/FaithInLife/lab';
+  const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+  await p.goto('file:///C:/faithinlife/pages/FaithInLife/index.html', { waitUntil: 'load' });
+  await p.waitForTimeout(2200);
+  const box = await p.evaluate(() => { const e = document.getElementById('dailyword'); const r = e.getBoundingClientRect(); return { top: r.top + scrollY, h: r.height }; });
+  await p.evaluate(t => window.scrollTo(0, t - 40), box.top);
+  await p.waitForTimeout(700);
+  await p.screenshot({ path: out + '/band-desktop.png' });
+  const m = await b.newPage({ viewport: { width: 390, height: 844 } });
+  await m.goto('file:///C:/faithinlife/pages/FaithInLife/index.html', { waitUntil: 'load' });
+  await m.waitForTimeout(2000);
+  await m.evaluate(() => document.getElementById('dailyword').scrollIntoView());
+  await m.waitForTimeout(600);
+  await m.screenshot({ path: out + '/band-mobile.png' });
+  const overflow = await m.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  console.log('band height', Math.round(box.h), 'mobile overflow', overflow);
+  await b.close();
+})().catch(e => { console.error('ERR', e.message); process.exit(1); });
